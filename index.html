@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f172a">
+<title>20-Min Fat-Burn: 2:1 Intervals</title>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiMjAtTWluIEZhdC1CdXJuOiAyOjEgSW50ZXJ2YWxzIiwic2hvcnRfbmFtZSI6IjIwLU1pbiBGYXQtQnVybiIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGYxNzJhIiwidGhlbWVfY29sb3IiOiIjMGYxNzJhIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCw8c3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDEwMCAxMDAnPjxyZWN0IHdpZHRoPScxMDAnIGhlaWdodD0nMTAwJyBmaWxsPScjMGYxNzJhJy8+PHRleHQgeD0nNTAnIHk9JzY1JyBmb250LXNpemU9JzUwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPScjZTJlOGIwJz7iiK08L3RleHQ+PC9zdmc+Iiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--surface:#1e293b;--surface2:#334155;
+  --accent:#22d3ee;--accent2:#a78bfa;--green:#4ade80;--red:#f87171;--orange:#fb923c;
+  --text:#f1f5f9;--muted:#94a3b8;--radius:16px;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  display:flex;flex-direction:column;
+  padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);
+  -webkit-tap-highlight-color:transparent;user-select:none;
+}
+h1{font-size:1.1rem;font-weight:700;letter-spacing:-.02em}
+button{
+  font:inherit;border:none;cursor:pointer;border-radius:12px;
+  transition:transform .08s,opacity .08s;-webkit-tap-highlight-color:transparent;
+}
+button:active{transform:scale(.95);opacity:.8}
+.app{display:flex;flex-direction:column;height:100%;overflow:hidden}
+
+/* Header */
+.header{
+  padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border-bottom:1px solid var(--surface2);flex-shrink:0;
+}
+.header-left{display:flex;align-items:center;gap:8px}
+.logo{font-size:1.4rem}
+.header h1{font-size:.95rem;color:var(--muted);font-weight:500}
+.wake-badge{
+  font-size:.65rem;padding:3px 8px;border-radius:20px;
+  background:var(--surface2);color:var(--muted);display:flex;align-items:center;gap:4px;
+}
+.wake-badge.active{background:rgba(74,222,128,.15);color:var(--green)}
+
+/* Dashboard */
+.dashboard{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:12px;overflow:hidden;min-height:0}
+
+/* Level display */
+.level-row{display:flex;align-items:center;justify-content:center;gap:20px;min-height:70px}
+.level-current{text-align:center}
+.level-current-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.level-current-num{font-size:clamp(2.4rem,10vw,4rem);font-weight:800;color:var(--accent);line-height:1}
+.level-next{
+  text-align:center;padding:6px 14px;border-radius:12px;
+  background:var(--surface);border:1px solid var(--surface2);
+}
+.level-next-label{font-size:.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.level-next-num{font-size:1.1rem;font-weight:700;color:var(--accent2);line-height:1.2}
+.level-next-name{font-size:.65rem;color:var(--muted);max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Timer ring */
+.timer-ring-wrap{position:relative;width:min(280px,72vw);height:min(280px,72vw);flex-shrink:0}
+.timer-ring-bg,.timer-ring-fg{
+  position:absolute;inset:0;border-radius:50%;
+}
+.timer-ring-bg{border:6px solid var(--surface2)}
+.timer-ring-fg{
+  border:6px solid var(--accent);
+  transform:rotate(-90deg);transform-origin:center;
+  transition:stroke-dashoffset .3s linear;
+  filter:drop-shadow(0 0 8px rgba(34,211,238,.4));
+}
+.timer-ring-fg.warn{border-color:var(--orange);filter:drop-shadow(0 0 8px rgba(251,146,60,.5))}
+.timer-ring-fg.done{border-color:var(--green);filter:drop-shadow(0 0 8px rgba(74,222,128,.5))}
+.timer-center{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.timer-digits{font-size:clamp(3rem,12vw,5.5rem);font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.timer-ms{font-size:clamp(.8rem,3vw,1.1rem);color:var(--muted);font-weight:500;margin-top:2px}
+
+/* Resistance badge */
+.resistance-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--surface2);border-radius:30px;padding:6px 16px;
+  font-size:.8rem;color:var(--muted);
+}
+.resistance-badge .val{color:var(--accent2);font-weight:700;font-size:1rem}
+
+/* Progress bar */
+.progress-wrap{width:100%;max-width:360px}
+.progress-label{font-size:.7rem;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between}
+.progress-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .4s ease;width:0%}
+
+/* Controls */
+.controls{
+  display:flex;gap:12px;padding:0 16px 16px;justify-content:center;flex-shrink:0;
+}
+.ctrl-btn{
+  width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;font-weight:700;
+}
+.ctrl-primary{background:var(--accent);color:var(--bg);width:auto;border-radius:30px;padding:0 32px;font-size:1rem;height:56px;gap:8px}
+.ctrl-pause{background:var(--orange);color:var(--bg)}
+.ctrl-reset{background:var(--surface2);color:var(--muted)}
+.ctrl-primary svg{width:20px;height:20px;fill:currentColor}
+
+/* Interval list strip */
+.interval-strip{
+  display:flex;gap:6px;padding:8px 16px;overflow-x:auto;flex-shrink:0;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.interval-strip::-webkit-scrollbar{display:none}
+.int-chip{
+  flex-shrink:0;padding:6px 12px;border-radius:20px;font-size:.7rem;
+  background:var(--surface);color:var(--muted);border:1px solid var(--surface2);
+  white-space:nowrap;transition:all .2s;
+}
+.int-chip.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700}
+.int-chip.done{border-color:var(--green);color:var(--green)}
+
+/* Editor modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
+  z-index:100;display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{
+  width:100%;max-width:600px;max-height:85vh;
+  background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;
+  display:flex;flex-direction:column;overflow:hidden;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-header{
+  padding:16px 20px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--surface2);flex-shrink:0;
+}
+.modal-header h2{font-size:1rem}
+.modal-close{
+  width:36px;height:36px;border-radius:50%;background:var(--surface2);
+  color:var(--muted);font-size:1.2rem;display:flex;align-items:center;justify-content:center;
+}
+.modal-body{flex:1;overflow-y:auto;padding:16px 20px;-webkit-overflow-scrolling:touch}
+.editor-label{font-size:.75rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.json-editor{
+  width:100%;min-height:240px;background:var(--bg);color:var(--accent);
+  border:1px solid var(--surface2);border-radius:12px;padding:12px;
+  font-family:'SF Mono',Consolas,monospace;font-size:.8rem;
+  resize:vertical;line-height:1.5;
+}
+.json-editor:focus{outline:none;border-color:var(--accent)}
+.json-error{color:var(--red);font-size:.75rem;margin-top:6px;min-height:1.2em}
+.modal-footer{
+  padding:12px 20px;display:flex;gap:10px;border-top:1px solid var(--surface2);flex-shrink:0;
+}
+.modal-footer button{flex:1;padding:12px;border-radius:12px;font-weight:600;font-size:.9rem}
+.btn-save{background:var(--accent);color:var(--bg)}
+.btn-cancel{background:var(--surface2);color:var(--muted)}
+.btn-add{background:var(--surface2);color:var(--accent);border-radius:12px;padding:8px 14px;font-size:.8rem;font-weight:600;margin-top:12px}
+
+/* Settings gear */
+.settings-btn{
+  width:36px;height:36px;border-radius:50%;background:var(--surface2);
+  color:var(--muted);font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+}
+.settings-btn:hover{color:var(--text)}
+
+/* Toast */
+.toast{
+  position:fixed;top:calc(12px + var(--safe-top));left:50%;transform:translateX(-50%) translateY(-120%);
+  background:var(--surface);border:1px solid var(--surface2);border-radius:12px;
+  padding:10px 20px;font-size:.8rem;color:var(--text);z-index:200;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Completed overlay */
+.completed-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.92);backdrop-filter:blur(12px);
+  z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;opacity:0;pointer-events:none;transition:opacity .4s;
+}
+.completed-overlay.show{opacity:1;pointer-events:auto}
+.completed-emoji{font-size:4rem}
+.completed-text{font-size:1.5rem;font-weight:800;text-align:center}
+.completed-sub{color:var(--muted);font-size:.9rem;text-align:center}
+.completed-overlay button{
+  margin-top:12px;background:var(--accent);color:var(--bg);
+  padding:14px 36px;border-radius:30px;font-weight:700;font-size:1rem;
+}
+
+/* Music bar */
+.music-bar{
+  padding:6px 16px;display:flex;align-items:center;gap:8px;
+  background:var(--surface);border-bottom:1px solid var(--surface2);flex-shrink:0;
+}
+.music-bar.hidden{display:none}
+.music-btn{
+  width:30px;height:30px;border-radius:50%;background:var(--surface2);
+  color:var(--muted);font-size:.8rem;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.music-btn.playing{background:var(--accent);color:var(--bg)}
+.music-btn svg{width:14px;height:14px;fill:currentColor}
+.music-name{
+  flex:1;min-width:0;font-size:.7rem;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.music-vol{
+  width:60px;height:4px;-webkit-appearance:none;appearance:none;
+  background:var(--surface2);border-radius:2px;outline:none;flex-shrink:0;
+}
+.music-vol::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--accent);cursor:pointer;
+}
+.music-vol::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:none;cursor:pointer}
+.music-pick{
+  font-size:.65rem;color:var(--accent);white-space:nowrap;cursor:pointer;flex-shrink:0;
+}
+.music-pick input{display:none}
+
+/* See Program button */
+.see-program-btn{
+  background:var(--surface2);border:none;color:var(--muted);
+  padding:6px 12px;border-radius:20px;font-size:.75rem;font-weight:600;
+  display:flex;align-items:center;gap:5px;
+}
+.see-program-btn:active{opacity:.7}
+.see-program-btn svg{width:13px;height:13px;fill:currentColor}
+
+/* Program panel */
+.program-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  z-index:80;opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.program-overlay.open{opacity:1;pointer-events:auto}
+.program-panel{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;
+  max-height:75vh;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+  z-index:81;
+}
+.program-overlay.open .program-panel{transform:translateY(0)}
+.program-panel-header{
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--surface2);flex-shrink:0;
+}
+.program-panel-header h2{font-size:.95rem;font-weight:700}
+.program-panel-close{
+  width:32px;height:32px;border-radius:50%;background:var(--surface2);
+  color:var(--muted);font-size:1rem;display:flex;align-items:center;justify-content:center;
+}
+.program-list{flex:1;overflow-y:auto;padding:12px 16px;-webkit-overflow-scrolling:touch}
+.program-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:12px;margin-bottom:6px;background:var(--bg);
+  border:1px solid transparent;transition:border-color .2s;
+}
+.program-item.active{border-color:var(--accent);background:rgba(34,211,238,.06)}
+.program-item.done{opacity:.5}
+.program-num{
+  width:28px;height:28px;border-radius:50%;background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:700;color:var(--muted);flex-shrink:0;
+}
+.program-item.active .program-num{background:var(--accent);color:var(--bg)}
+.program-item.done .program-num{background:var(--green);color:var(--bg)}
+.program-info{flex:1;min-width:0}
+.program-name{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.program-desc{font-size:.7rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.program-meta{font-size:.7rem;color:var(--muted);text-align:right;flex-shrink:0;white-space:nowrap}
+.program-meta .res{color:var(--accent2);font-weight:700}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse{animation:pulse 1s ease-in-out infinite}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="header">
+    <div class="header-left">
+      <span class="logo">🚴</span>
+      <h1>20-Min Fat-Burn: 2:1</h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="see-program-btn" id="openProgram">
+        <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+        Program
+      </button>
+      <span class="wake-badge" id="wakeBadge">⚡ Wake</span>
+      <button class="settings-btn" id="openEditor" aria-label="Edit workout">⚙</button>
+    </div>
+  </header>
+
+  <!-- Music Bar -->
+  <div class="music-bar" id="musicBar">
+    <label class="music-pick" id="musicPick">
+      <input type="file" id="musicFile" accept="audio/*">
+      + Add music
+    </label>
+    <button class="music-btn" id="musicPlayPause" style="display:none" aria-label="Play/Pause music">
+      <svg viewBox="0 0 24 24" id="musicPlayIcon"><polygon points="6,3 20,12 6,21"/></svg>
+      <svg viewBox="0 0 24 24" id="musicPauseIcon" style="display:none"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+    </button>
+    <span class="music-name" id="musicName">No music loaded</span>
+    <input type="range" class="music-vol" id="musicVol" min="0" max="100" value="70" style="display:none">
+  </div>
+
+  <section class="dashboard" id="dashboard">
+    <div class="level-row" id="levelRow">
+      <div class="level-current">
+        <div class="level-current-label" id="currentLabel">Ready</div>
+        <div class="level-current-num" id="currentLevel">—</div>
+      </div>
+      <div class="level-next" id="levelNext">
+        <div class="level-next-label">NEXT</div>
+        <div class="level-next-num" id="nextLevel">—</div>
+        <div class="level-next-name" id="nextName"></div>
+      </div>
+    </div>
+
+    <div class="timer-ring-wrap">
+      <div class="timer-ring-bg"></div>
+      <div class="timer-ring-fg" id="timerRing"></div>
+      <div class="timer-center">
+        <div class="timer-digits" id="timerDigits">0:00</div>
+        <div class="timer-ms" id="timerMs"></div>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="progressText">0 / 0 intervals</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </section>
+
+  <div class="controls">
+    <button class="ctrl-btn ctrl-reset" id="btnReset" aria-label="Reset" style="display:none">↺</button>
+    <button class="ctrl-btn ctrl-primary" id="btnStart">
+      <svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>
+      Start
+    </button>
+    <button class="ctrl-btn ctrl-primary ctrl-pause" id="btnPause" style="display:none">
+      <svg viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+      Pause
+    </button>
+    <button class="ctrl-btn ctrl-primary" id="btnResume" style="display:none">
+      <svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>
+      Resume
+    </button>
+  </div>
+
+  <!-- Program Panel -->
+  <div class="program-overlay" id="programOverlay">
+    <div class="program-panel">
+      <div class="program-panel-header">
+        <h2>Workout Program</h2>
+        <button class="program-panel-close" id="closeProgram">✕</button>
+      </div>
+      <div class="program-list" id="programList"></div>
+    </div>
+  </div>
+
+  <!-- Editor Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Edit Workout</h2>
+        <button class="modal-close" id="closeEditor">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="editor-label">Workout JSON</div>
+        <textarea class="json-editor" id="jsonEditor" spellcheck="false"></textarea>
+        <div class="json-error" id="jsonError"></div>
+        <button class="btn-add" id="btnAddInterval">+ Add Interval</button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="btnCancel">Cancel</button>
+        <button class="btn-save" id="btnSave">Save & Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Completed overlay -->
+  <div class="completed-overlay" id="completedOverlay">
+    <div class="completed-emoji">🎉</div>
+    <div class="completed-text">Workout Complete!</div>
+    <div class="completed-sub" id="completedStats"></div>
+    <button id="btnDone">Done</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ── Default Workout ──────────────────────────────────────────────────
+  // The 20-Minute Fat-Burn Strategy: The 2:1 Interval Method
+  const DEFAULT_WORKOUT = [
+    { label: "Warm-Up",        duration: 180, resistance: 2, description: "Comfortable, easy pace to wake up the joints." },
+    { label: "Work Interval",  duration: 120, resistance: 4, description: "Fast & Powerful. Push and pull hard." },
+    { label: "Recovery",       duration: 60,  resistance: 2, description: "Slow down, catch your breath." },
+    { label: "Work Interval",  duration: 120, resistance: 5, description: "Fast & Powerful. Focus on pushing through the heels." },
+    { label: "Recovery",       duration: 60,  resistance: 3, description: "Steady, easy pedaling." },
+    { label: "Work Interval",  duration: 120, resistance: 5, description: "Fast & Powerful. Move in reverse, optional, targets hamstrings." },
+    { label: "Recovery",       duration: 60,  resistance: 3, description: "Catch your breath." },
+    { label: "Work Interval",  duration: 120, resistance: 5, description: "Fast & Powerful. Give it everything you've got." },
+    { label: "Recovery",       duration: 60,  resistance: 3, description: "Steady recovery." },
+    { label: "Peak Interval",  duration: 120, resistance: 6, description: "Heavy Burn. Slower pace, but maximum muscle push." },
+    { label: "Cool-Down",      duration: 180, resistance: 2, description: "Slow pedaling to bring your heart rate down." },
+  ];
+
+  const STORAGE_KEY = 'elliptical_workout_v2';
+  const CIRCUMFERENCE = 2 * Math.PI * 120; // matches SVG viewBox radius
+
+  // ── State ────────────────────────────────────────────────────────────
+  let workout = [];
+  let currentIdx = 0;
+  let timeLeft = 0;       // seconds remaining
+  let totalTime = 0;      // total seconds for current interval
+  let running = false;
+  let paused = false;
+  let intervalId = null;
+  let lastTick = 0;       // performance.now() for drift correction
+  let wakeLock = null;
+  let speechUnlocked = false;
+
+  // ── Audio Context (lazy init) ────────────────────────────────────────
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+
+  // ── DOM refs ─────────────────────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+  const currentLabel = $('currentLabel');
+  const currentLevel = $('currentLevel');
+  const nextLevel = $('nextLevel');
+  const nextName = $('nextName');
+  const levelNext = $('levelNext');
+  const timerDigits = $('timerDigits');
+  const timerMs = $('timerMs');
+  const timerRing = $('timerRing');
+  const progressFill = $('progressFill');
+  const progressText = $('progressText');
+  const progressPct = $('progressPct');
+  const programList = $('programList');
+  const programOverlay = $('programOverlay');
+  const openProgram = $('openProgram');
+  const closeProgram = $('closeProgram');
+  const btnStart = $('btnStart');
+  const btnPause = $('btnPause');
+  const btnResume = $('btnResume');
+  const btnReset = $('btnReset');
+  const openEditor = $('openEditor');
+  const modalOverlay = $('modalOverlay');
+  const closeEditor = $('closeEditor');
+  const jsonEditor = $('jsonEditor');
+  const jsonError = $('jsonError');
+  const btnSave = $('btnSave');
+  const btnCancel = $('btnCancel');
+  const btnAddInterval = $('btnAddInterval');
+  const wakeBadge = $('wakeBadge');
+  const completedOverlay = $('completedOverlay');
+  const completedStats = $('completedStats');
+  const btnDone = $('btnDone');
+  const toast = $('toast');
+
+  // ── Music ──────────────────────────────────────────────────────────
+  const musicBar = $('musicBar');
+  const musicFile = $('musicFile');
+  const musicPlayPause = $('musicPlayPause');
+  const musicPlayIcon = $('musicPlayIcon');
+  const musicPauseIcon = $('musicPauseIcon');
+  const musicName = $('musicName');
+  const musicVol = $('musicVol');
+  const musicPick = $('musicPick');
+
+  let musicEl = null;
+  let musicLoaded = false;
+  let userVolume = 0.7;
+  let isDucking = false;
+
+  function loadMusic(file) {
+    if (musicEl) { musicEl.pause(); musicEl.src = ''; }
+    musicEl = new Audio();
+    musicEl.crossOrigin = 'anonymous';
+    musicEl.loop = true;
+    musicEl.volume = userVolume;
+    musicEl.src = URL.createObjectURL(file);
+    musicLoaded = true;
+    musicName.textContent = file.name.replace(/\.[^.]+$/, '');
+    musicPlayPause.style.display = '';
+    musicVol.style.display = '';
+    musicPick.style.display = 'none';
+  }
+
+  function toggleMusic() {
+    if (!musicLoaded) return;
+    if (musicEl.paused) {
+      musicEl.play();
+      musicPlayIcon.style.display = 'none';
+      musicPauseIcon.style.display = '';
+      musicPlayPause.classList.add('playing');
+    } else {
+      musicEl.pause();
+      musicPlayIcon.style.display = '';
+      musicPauseIcon.style.display = 'none';
+      musicPlayPause.classList.remove('playing');
+    }
+  }
+
+  function duckMusic() {
+    if (!musicLoaded || musicEl.paused) return;
+    isDucking = true;
+    musicEl.volume = Math.min(userVolume, 0.15);
+  }
+
+  function unduckMusic() {
+    if (!musicLoaded || !isDucking) return;
+    isDucking = false;
+    musicEl.volume = userVolume;
+  }
+
+  musicFile.addEventListener('change', (e) => {
+    if (e.target.files[0]) loadMusic(e.target.files[0]);
+  });
+  musicPlayPause.addEventListener('click', toggleMusic);
+  musicVol.addEventListener('input', () => {
+    userVolume = musicVol.value / 100;
+    if (!isDucking && musicLoaded) musicEl.volume = userVolume;
+  });
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  function fmt(sec) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${String(s).padStart(2, '0')}`;
+  }
+
+  function fmtMs(ms) {
+    return String(Math.floor((ms % 1000) / 10)).padStart(2, '0');
+  }
+
+  function totalWorkoutSeconds() {
+    return workout.reduce((a, i) => a + i.duration, 0);
+  }
+
+  function elapsedSeconds() {
+    let elapsed = 0;
+    for (let i = 0; i < currentIdx; i++) elapsed += workout[i].duration;
+    elapsed += (workout[currentIdx]?.duration || 0) - timeLeft;
+    return elapsed;
+  }
+
+  function showToast(msg, dur = 2000) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), dur);
+  }
+
+  // ── Render ───────────────────────────────────────────────────────────
+  function renderProgramList() {
+    programList.innerHTML = '';
+    workout.forEach((item, i) => {
+      const el = document.createElement('div');
+      el.className = 'program-item' + (i === currentIdx && (running || paused) ? ' active' : '') + (i < currentIdx ? ' done' : '');
+      const dur = item.duration;
+      const mm = Math.floor(dur / 60);
+      const ss = dur % 60;
+      const timeStr = mm > 0 ? `${mm}m${ss > 0 ? ' ' + ss + 's' : ''}` : `${ss}s`;
+      el.innerHTML = `
+        <div class="program-num">${i < currentIdx ? '✓' : i + 1}</div>
+        <div class="program-info">
+          <div class="program-name">${item.label}</div>
+          <div class="program-desc">${item.description}</div>
+        </div>
+        <div class="program-meta"><div class="res">L${item.resistance}</div><div>${timeStr}</div></div>
+      `;
+      el.addEventListener('click', () => {
+        if (!running && !paused) { jumpTo(i); closeProgramPanel(); }
+      });
+      programList.appendChild(el);
+    });
+  }
+
+  function renderTimer() {
+    const item = workout[currentIdx];
+    if (!item) {
+      timerDigits.textContent = '0:00';
+      timerMs.textContent = '';
+      timerRing.style.strokeDashoffset = CIRCUMFERENCE;
+      return;
+    }
+    timerDigits.textContent = fmt(timeLeft);
+    timerMs.textContent = `.${fmtMs(timeLeft * 1000)}`;
+
+    // Ring progress
+    const pct = totalTime > 0 ? (totalTime - timeLeft) / totalTime : 0;
+    timerRing.style.strokeDasharray = CIRCUMFERENCE;
+    timerRing.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
+
+    // Warn color in last 5 seconds
+    timerRing.classList.toggle('warn', timeLeft <= 5 && timeLeft > 0);
+    timerRing.classList.toggle('done', timeLeft <= 0);
+  }
+
+  function renderProgress() {
+    const total = workout.reduce((a, i) => a + i.duration, 0);
+    const done = elapsedSeconds();
+    const pct = total > 0 ? Math.min(100, (done / total) * 100) : 0;
+    progressFill.style.width = pct + '%';
+    progressText.textContent = `${currentIdx + 1} / ${workout.length} intervals`;
+    progressPct.textContent = Math.round(pct) + '%';
+  }
+
+  function renderAll() {
+    renderProgramList();
+    renderTimer();
+    renderProgress();
+  }
+
+  function updateLevelDisplay() {
+    const item = workout[currentIdx];
+    const next = workout[currentIdx + 1];
+    if (item) {
+      currentLabel.textContent = item.label;
+      currentLevel.textContent = `L${item.resistance}`;
+    } else {
+      currentLabel.textContent = 'Ready';
+      currentLevel.textContent = '—';
+    }
+    if (next) {
+      levelNext.style.display = '';
+      nextLevel.textContent = `L${next.resistance}`;
+      nextName.textContent = next.label;
+    } else {
+      levelNext.style.display = 'none';
+    }
+  }
+
+  // ── Speech ───────────────────────────────────────────────────────────
+  let femaleVoice = null;
+
+  function findFemaleVoice() {
+    if (femaleVoice) return femaleVoice;
+    const voices = speechSynthesis.getVoices();
+    // Prefer well-known female voice names
+    const preferred = ['samantha', 'karen', 'moira', 'tessa', 'zira', 'hazel',
+      'google uk english female', 'google us english', 'microsoft zira',
+      'microsoft hazel', 'siri',
+      'google español', 'female'];
+    for (const pref of preferred) {
+      const match = voices.find(v => v.name.toLowerCase().includes(pref));
+      if (match) { femaleVoice = match; return femaleVoice; }
+    }
+    // Fallback: any voice with female keywords in name
+    const femaleKeywords = ['female', 'woman', 'samantha', 'karen', 'zira', 'hazel', 'moira', 'tessa'];
+    for (const kw of femaleKeywords) {
+      const match = voices.find(v => v.name.toLowerCase().includes(kw));
+      if (match) { femaleVoice = match; return femaleVoice; }
+    }
+    // Fallback: pick first non-default voice (often female on most platforms)
+    const nonDefault = voices.find(v => !v.default && v.lang.startsWith('en'));
+    if (nonDefault) { femaleVoice = nonDefault; return femaleVoice; }
+    return null;
+  }
+
+  function unlockSpeech() {
+    if (speechUnlocked) return;
+    try {
+      findFemaleVoice();
+      const u = new SpeechSynthesisUtterance('');
+      u.volume = 0;
+      speechSynthesis.speak(u);
+      speechUnlocked = true;
+    } catch (e) {}
+  }
+
+  function speak(text) {
+    if (!speechSynthesis) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1;
+    u.pitch = 1.1;
+    u.volume = 1;
+    const voice = findFemaleVoice();
+    if (voice) u.voice = voice;
+    duckMusic();
+    u.onend = () => unduckMusic();
+    u.onerror = () => unduckMusic();
+    speechSynthesis.speak(u);
+  }
+
+  // Re-check voices after they load (voices may load async)
+  speechSynthesis.onvoiceschanged = () => { femaleVoice = null; findFemaleVoice(); };
+
+  // ── Beep via Web Audio API ───────────────────────────────────────────
+  function beep(freq = 880, dur = 0.12) {
+    try {
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + dur);
+    } catch (e) {}
+  }
+
+  function countdownBeep(count) {
+    beep(count === 0 ? 1200 : 660, 0.08);
+  }
+
+  // ── Wake Lock ────────────────────────────────────────────────────────
+  async function acquireWakeLock() {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeBadge.classList.add('active');
+        wakeBadge.textContent = '⚡ Screen awake';
+        wakeLock.addEventListener('release', () => {
+          wakeBadge.classList.remove('active');
+          wakeBadge.textContent = '⚡ Wake';
+        });
+      }
+    } catch (e) {
+      wakeBadge.textContent = '⚡ Wake N/A';
+    }
+  }
+
+  async function releaseWakeLock() {
+    if (wakeLock) {
+      try { await wakeLock.release(); } catch (e) {}
+      wakeLock = null;
+    }
+    wakeBadge.classList.remove('active');
+    wakeBadge.textContent = '⚡ Wake';
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && running && !paused) {
+      acquireWakeLock();
+    }
+  });
+
+  // ── Interval Engine ──────────────────────────────────────────────────
+  let remainingMs = 0; // sub-second precision
+  let lastSecond = -1; // track integer second to fire countdown beeps
+
+  function tick() {
+    const now = performance.now();
+    const delta = now - lastTick;
+    lastTick = now;
+    remainingMs -= delta;
+
+    const currentSec = Math.ceil(remainingMs / 1000);
+
+    // Countdown beeps in last 3 seconds
+    if (currentSec !== lastSecond && currentSec <= 3 && currentSec > 0) {
+      countdownBeep(currentSec);
+      speak(`${currentSec}`);
+    }
+    lastSecond = currentSec;
+
+    // Update timer display
+    const secFloat = remainingMs / 1000;
+    timeLeft = Math.max(0, Math.ceil(secFloat));
+    renderTimer();
+    renderProgress();
+
+    // Time's up → advance
+    if (remainingMs <= 0) {
+      advanceInterval();
+    }
+  }
+
+  function startInterval() {
+    if (currentIdx >= workout.length) {
+      finishWorkout();
+      return;
+    }
+    const item = workout[currentIdx];
+    totalTime = item.duration;
+    remainingMs = item.duration * 1000;
+    timeLeft = item.duration;
+    lastSecond = -1;
+    lastTick = performance.now();
+
+    updateLevelDisplay();
+    renderAll();
+
+    // Audio cue
+    beep(520, 0.1);
+    setTimeout(() => {
+      speak(`Level ${item.resistance}. ${item.label}. ${item.description}.`);
+    }, 150);
+
+    if (intervalId) clearInterval(intervalId);
+    intervalId = setInterval(tick, 50); // high-frequency for drift correction
+  }
+
+  function advanceInterval() {
+    if (intervalId) clearInterval(intervalId);
+    intervalId = null;
+    beep(1000, 0.15);
+    currentIdx++;
+    if (currentIdx >= workout.length) {
+      finishWorkout();
+    } else {
+      startInterval();
+    }
+  }
+
+  function jumpTo(idx) {
+    if (idx < 0 || idx >= workout.length) return;
+    currentIdx = idx;
+    startInterval();
+  }
+
+  function finishWorkout() {
+    running = false;
+    paused = false;
+    currentLabel.textContent = 'Workout Complete!';
+    currentLevel.textContent = '🎉';
+    levelNext.style.display = 'none';
+    const total = totalWorkoutSeconds();
+    completedStats.textContent = `${workout.length} intervals · ${Math.floor(total / 60)}m ${total % 60}s total`;
+    completedOverlay.classList.add('show');
+    speak('Workout complete. Great job!');
+    releaseWakeLock();
+    // Pause music on finish
+    if (musicLoaded && !musicEl.paused) {
+      musicEl.pause();
+      musicPlayIcon.style.display = '';
+      musicPauseIcon.style.display = 'none';
+      musicPlayPause.classList.remove('playing');
+    }
+    renderAll();
+    updateButtons();
+  }
+
+  // ── Controls ─────────────────────────────────────────────────────────
+  function updateButtons() {
+    btnStart.style.display = (!running && !paused) ? '' : 'none';
+    btnPause.style.display = (running && !paused) ? '' : 'none';
+    btnResume.style.display = paused ? '' : 'none';
+    btnReset.style.display = (running || paused) ? '' : 'none';
+  }
+
+  btnStart.addEventListener('click', () => {
+    unlockSpeech();
+    if (workout.length === 0) {
+      showToast('Add intervals first!');
+      return;
+    }
+    currentIdx = 0;
+    running = true;
+    paused = false;
+    acquireWakeLock();
+    startInterval();
+    updateButtons();
+    // Auto-play music if loaded
+    if (musicLoaded && musicEl.paused) {
+      musicEl.play();
+      musicPlayIcon.style.display = 'none';
+      musicPauseIcon.style.display = '';
+      musicPlayPause.classList.add('playing');
+    }
+  });
+
+  btnPause.addEventListener('click', () => {
+    if (!running) return;
+    paused = true;
+    running = false;
+    if (intervalId) { clearInterval(intervalId); intervalId = null; }
+    currentLabel.textContent = 'Paused';
+    const item = workout[currentIdx];
+    currentLevel.textContent = item ? `L${item.resistance}` : '—';
+    updateLevelDisplay();
+    speak('Paused');
+    updateButtons();
+  });
+
+  btnResume.addEventListener('click', () => {
+    if (!paused) return;
+    paused = false;
+    running = true;
+    acquireWakeLock();
+    lastTick = performance.now();
+    intervalId = setInterval(tick, 50);
+    speak('Resuming');
+    updateButtons();
+  });
+
+  btnReset.addEventListener('click', () => {
+    if (intervalId) { clearInterval(intervalId); intervalId = null; }
+    running = false;
+    paused = false;
+    currentIdx = 0;
+    timeLeft = 0;
+    totalTime = 0;
+    remainingMs = 0;
+    currentLabel.textContent = 'Ready';
+    currentLevel.textContent = '—';
+    levelNext.style.display = 'none';
+    timerRing.style.strokeDashoffset = CIRCUMFERENCE;
+    timerRing.classList.remove('warn', 'done');
+    releaseWakeLock();
+    // Pause music on reset
+    if (musicLoaded && !musicEl.paused) {
+      musicEl.pause();
+      musicPlayIcon.style.display = '';
+      musicPauseIcon.style.display = 'none';
+      musicPlayPause.classList.remove('playing');
+    }
+    renderAll();
+    updateButtons();
+  });
+
+  btnDone.addEventListener('click', () => {
+    completedOverlay.classList.remove('show');
+    btnReset.click();
+  });
+
+  // ── Editor ───────────────────────────────────────────────────────────
+  function loadWorkout() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].duration) {
+          workout = parsed;
+          return;
+        }
+      }
+    } catch (e) {}
+    workout = structuredClone(DEFAULT_WORKOUT);
+  }
+
+  function saveWorkout() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(workout));
+    } catch (e) {}
+  }
+
+  function openWorkoutEditor() {
+    jsonEditor.value = JSON.stringify(workout, null, 2);
+    jsonError.textContent = '';
+    modalOverlay.classList.add('open');
+  }
+
+  function closeWorkoutEditor() {
+    modalOverlay.classList.remove('open');
+  }
+
+  jsonEditor.addEventListener('input', () => {
+    try {
+      const parsed = JSON.parse(jsonEditor.value);
+      if (!Array.isArray(parsed)) throw new Error('Must be an array');
+      parsed.forEach((item, i) => {
+        if (!item.label || typeof item.label !== 'string') throw new Error(`Item ${i}: label is required (string)`);
+        if (!item.duration || typeof item.duration !== 'number' || item.duration < 1) throw new Error(`Item ${i}: duration must be a positive number`);
+        if (item.resistance === undefined || typeof item.resistance !== 'number') throw new Error(`Item ${i}: resistance is required (number)`);
+      });
+      jsonError.textContent = '';
+      jsonError.style.color = 'var(--green)';
+      jsonError.textContent = `✓ ${parsed.length} intervals, valid`;
+      setTimeout(() => { jsonError.textContent = ''; }, 2000);
+    } catch (e) {
+      jsonError.textContent = e.message;
+      jsonError.style.color = 'var(--red)';
+    }
+  });
+
+  btnSave.addEventListener('click', () => {
+    try {
+      const parsed = JSON.parse(jsonEditor.value);
+      if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Need at least one interval');
+      parsed.forEach((item, i) => {
+        if (!item.label || typeof item.label !== 'string') throw new Error(`Item ${i}: label required`);
+        if (!item.duration || typeof item.duration !== 'number' || item.duration < 1) throw new Error(`Item ${i}: duration must be >= 1`);
+        if (item.resistance === undefined || typeof item.resistance !== 'number') throw new Error(`Item ${i}: resistance required`);
+        if (!item.description) item.description = item.label;
+      });
+      workout = parsed;
+      saveWorkout();
+      closeWorkoutEditor();
+      renderStrip();
+      showToast('Workout saved!');
+    } catch (e) {
+      jsonError.textContent = e.message;
+      jsonError.style.color = 'var(--red)';
+    }
+  });
+
+  btnCancel.addEventListener('click', closeWorkoutEditor);
+  closeEditor.addEventListener('click', closeWorkoutEditor);
+  openEditor.addEventListener('click', openWorkoutEditor);
+
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) closeWorkoutEditor();
+  });
+
+  btnAddInterval.addEventListener('click', () => {
+    const newItem = { label: "New Interval", duration: 60, resistance: 5, description: "Description here" };
+    let arr;
+    try { arr = JSON.parse(jsonEditor.value); } catch (e) { arr = [...workout]; }
+    arr.push(newItem);
+    jsonEditor.value = JSON.stringify(arr, null, 2);
+    jsonEditor.scrollTop = jsonEditor.scrollHeight;
+    jsonEditor.dispatchEvent(new Event('input'));
+  });
+
+  // ── Program Panel ──────────────────────────────────────────────────
+  function openProgramPanel() {
+    renderProgramList();
+    programOverlay.classList.add('open');
+  }
+  function closeProgramPanel() {
+    programOverlay.classList.remove('open');
+  }
+  openProgram.addEventListener('click', openProgramPanel);
+  closeProgram.addEventListener('click', closeProgramPanel);
+  programOverlay.addEventListener('click', (e) => {
+    if (e.target === programOverlay) closeProgramPanel();
+  });
+
+  // ── Init ─────────────────────────────────────────────────────────────
+  timerRing.style.strokeDasharray = CIRCUMFERENCE;
+  timerRing.style.strokeDashoffset = CIRCUMFERENCE;
+  loadWorkout();
+  renderAll();
+  updateButtons();
+
+  // Unlock speech on first interaction
+  ['touchstart', 'click', 'keydown'].forEach(evt => {
+    document.addEventListener(evt, unlockSpeech, { once: false, passive: true });
+  });
+
+  // Re-acquire wake lock if page becomes visible
+  if (document.visibilityState === 'visible' && running) acquireWakeLock();
+})();
+</script>
+</body>
+</html>
