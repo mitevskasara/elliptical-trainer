@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { WorkoutInterval } from "@/types/workout";
-import { DEFAULT_WORKOUT, STORAGE_KEY } from "@/constants/workout";
+import { WORKOUTS, STORAGE_KEY, WorkoutLevel } from "@/constants/workout";
 import { beep, countdownBeep } from "@/lib/audio";
 import { findFemaleVoice, speak, unlockSpeech } from "@/lib/speech";
 import { elapsedSeconds, totalWorkoutSeconds } from "@/lib/helpers";
+
+const COUNTDOWN_SECONDS = 5;
 
 interface DuckHandlers {
   duck: () => void;
@@ -24,10 +26,12 @@ interface WorkoutControls {
   reset: () => void;
   jumpTo: (idx: number) => void;
   saveWorkout: (workout: WorkoutInterval[]) => void;
+  setWorkoutLevel: (level: WorkoutLevel) => void;
 }
 
 export interface UseWorkoutResult {
   workout: WorkoutInterval[];
+  workoutLevel: WorkoutLevel;
   currentIdx: number;
   currentItem: WorkoutInterval | undefined;
   nextItem: WorkoutInterval | undefined;
@@ -41,23 +45,25 @@ export interface UseWorkoutResult {
   controls: WorkoutControls;
 }
 
-function loadWorkout(): WorkoutInterval[] {
+function loadWorkoutLevel(): WorkoutLevel {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].duration) {
-        return parsed as WorkoutInterval[];
-      }
+    const stored = localStorage.getItem(`${STORAGE_KEY}_level`);
+    if (stored && WORKOUTS[stored as WorkoutLevel]) {
+      return stored as WorkoutLevel;
     }
   } catch (e) {}
-  return structuredClone(DEFAULT_WORKOUT);
+  return "standard";
+}
+
+function loadWorkoutByLevel(level: WorkoutLevel): WorkoutInterval[] {
+  return structuredClone(WORKOUTS[level]);
 }
 
 export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
   const [workout, setWorkout] = useState<WorkoutInterval[]>(() =>
-    structuredClone(DEFAULT_WORKOUT),
+    structuredClone(WORKOUTS.standard),
   );
+  const [workoutLevel, setWorkoutLevelState] = useState<WorkoutLevel>("standard");
   const [currentIdx, setCurrentIdx] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -147,7 +153,7 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
 
     const currentSec = Math.ceil(remainingMsRef.current / 1000);
 
-    if (currentSec !== lastSecondRef.current && currentSec <= 3 && currentSec > 0) {
+    if (currentSec !== lastSecondRef.current && currentSec <= COUNTDOWN_SECONDS && currentSec > 0) {
       countdownBeep(currentSec);
       speak(`${currentSec}`, duckHandlersRef.current.duck, duckHandlersRef.current.unduck);
     }
@@ -182,6 +188,7 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
     setCurrentIdx(currentIdxRef.current);
     syncUiState();
 
+    duckHandlersRef.current.duck();
     beep(520, 0.1);
     setTimeout(() => {
       speak(
@@ -257,9 +264,24 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
   const saveWorkout = useCallback((w: WorkoutInterval[]) => {
     workoutRef.current = w;
     setWorkout(w);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(w));
-    } catch (e) {}
+  }, []);
+
+  const setWorkoutLevel = useCallback((level: WorkoutLevel) => {
+    if (WORKOUTS[level]) {
+      const newWorkout = loadWorkoutByLevel(level);
+      setWorkoutLevelState(level);
+      setWorkout(newWorkout);
+      setCurrentIdx(0);
+      setRemainingSeconds(0);
+      setIsRunning(false);
+      setIsPaused(false);
+      setIsComplete(false);
+      setTotalPercent(0);
+      workoutRef.current = newWorkout;
+      try {
+        localStorage.setItem(`${STORAGE_KEY}_level`, level);
+      } catch (e) {}
+    }
   }, []);
 
   useEffect(() => {
@@ -267,8 +289,10 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
   }, [workout]);
 
   useEffect(() => {
-    const saved = loadWorkout();
+    const level = loadWorkoutLevel();
+    const saved = loadWorkoutByLevel(level);
     setWorkout(saved);
+    setWorkoutLevelState(level);
     workoutRef.current = saved;
   }, []);
 
@@ -305,6 +329,7 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
 
   return {
     workout,
+    workoutLevel,
     currentIdx,
     currentItem,
     nextItem,
@@ -322,6 +347,7 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
       reset,
       jumpTo,
       saveWorkout,
+      setWorkoutLevel,
     },
   };
 }

@@ -1,15 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Header from "@/components/Header";
 import MusicBar from "@/components/MusicBar";
 import LevelDisplay from "@/components/LevelDisplay";
 import TimerRing from "@/components/TimerRing";
 import Progress from "@/components/Progress";
 import Controls from "@/components/Controls";
-import EditorModal from "@/components/EditorModal";
+import SettingsModal from "@/components/SettingsModal";
 import ProgramPanel from "@/components/ProgramPanel";
 import CompletedOverlay from "@/components/CompletedOverlay";
+import FloatingEmojis from "@/components/FloatingEmojis";
 import Toast from "@/components/Toast";
 import { useWorkout } from "@/hooks/useWorkout";
 import { useMusic } from "@/hooks/useMusic";
@@ -17,9 +18,23 @@ import { useToast } from "@/hooks/useToast";
 import { formatCompletionStats } from "@/lib/helpers";
 
 export default function Home() {
-  const [editorOpen, setEditorOpen] = useState(false);
   const [programOpen, setProgramOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [theme, setThemeState] = useState("dark");
   const { message, showToast } = useToast();
+
+  const handleThemeChange = useCallback((newTheme: string) => {
+    setThemeState(newTheme);
+    localStorage.setItem("trainer-theme", newTheme);
+    document.documentElement.setAttribute("data-theme", newTheme);
+  }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("trainer-theme") || "dark";
+    setThemeState(saved);
+    document.documentElement.setAttribute("data-theme", saved);
+  }, []);
+
   const music = useMusic();
   const workout = useWorkout({ duck: music.duck, unduck: music.unduck });
 
@@ -28,6 +43,25 @@ export default function Home() {
       music.togglePlayback();
     }
   }, [workout.isComplete]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const musicWasPlayingRef = useRef(false);
+
+  useEffect(() => {
+    if (workout.isPaused && music.musicLoaded && music.isPlaying) {
+      musicWasPlayingRef.current = true;
+      music.togglePlayback();
+    }
+  }, [workout.isPaused]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!workout.isPaused && workout.isRunning && music.musicLoaded && !music.isPlaying && musicWasPlayingRef.current) {
+      musicWasPlayingRef.current = false;
+      music.togglePlayback();
+    }
+    if (!workout.isPaused && workout.isRunning) {
+      musicWasPlayingRef.current = false;
+    }
+  }, [workout.isPaused, workout.isRunning]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStart = useCallback(() => {
     if (workout.workout.length === 0) {
@@ -47,31 +81,25 @@ export default function Home() {
     }
   }, [music.isPlaying, music.musicLoaded, music.togglePlayback, workout.controls]);
 
-  const handleSaveWorkout = useCallback(
-    (w: Parameters<typeof workout.controls.saveWorkout>[0]) => {
-      workout.controls.saveWorkout(w);
-      showToast("Workout saved!");
-    },
-    [showToast, workout.controls],
-  );
-
   const completionStats = formatCompletionStats(workout.workout);
   const currentTotalSeconds = workout.currentItem?.duration ?? 0;
 
   return (
     <div className="app">
       <Header
-        wakeLock={workout.wakeLock}
+        workoutLevel={workout.workoutLevel}
         onOpenProgram={() => setProgramOpen(true)}
-        onOpenEditor={() => setEditorOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
 
       <MusicBar
         musicName={music.musicName}
+        musicIcon={music.musicIcon}
         isPlaying={music.isPlaying}
         musicLoaded={music.musicLoaded}
         volume={music.volume}
         onLoadFile={music.loadFile}
+        onSelectTrack={music.loadTrack}
         onTogglePlayback={music.togglePlayback}
         onVolumeChange={music.setVolume}
       />
@@ -116,11 +144,13 @@ export default function Home() {
         onJump={workout.controls.jumpTo}
       />
 
-      <EditorModal
-        open={editorOpen}
-        workout={workout.workout}
-        onClose={() => setEditorOpen(false)}
-        onSave={handleSaveWorkout}
+      <SettingsModal
+        open={settingsOpen}
+        theme={theme}
+        workoutLevel={workout.workoutLevel}
+        onClose={() => setSettingsOpen(false)}
+        onThemeChange={handleThemeChange}
+        onWorkoutChange={workout.controls.setWorkoutLevel}
       />
 
       <CompletedOverlay
@@ -130,6 +160,10 @@ export default function Home() {
       />
 
       <Toast message={message} />
+
+      <FloatingEmojis active={workout.isRunning && !workout.isPaused && !workout.isComplete} />
+
+      <div className={`paused-overlay${workout.isPaused ? " show" : ""}`} />
     </div>
   );
 }

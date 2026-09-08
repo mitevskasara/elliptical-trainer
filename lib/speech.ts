@@ -37,6 +37,10 @@ export function resetVoice(): void {
 }
 
 let speechUnlocked = false;
+let speechActive = false;
+let postUnduckTimer: ReturnType<typeof setTimeout> | null = null;
+
+const POST_UNDUCK_MS = 1000;
 
 export function unlockSpeech(): void {
   if (speechUnlocked) return;
@@ -49,21 +53,42 @@ export function unlockSpeech(): void {
   } catch (e) {}
 }
 
+function clearTimers(): void {
+  if (postUnduckTimer) { clearTimeout(postUnduckTimer); postUnduckTimer = null; }
+}
+
 export function speak(
   text: string,
   onDuck: () => void,
   onUnduck: () => void,
 ): void {
   if (!speechSynthesis) return;
-  speechSynthesis.cancel();
+
+  if (speechActive) {
+    speechSynthesis.cancel();
+  } else {
+    clearTimers();
+    onDuck();
+  }
+
+  speechActive = true;
   const u = new SpeechSynthesisUtterance(text);
   u.rate = 1;
   u.pitch = 1.1;
   u.volume = 1;
   const voice = findFemaleVoice();
   if (voice) u.voice = voice;
-  onDuck();
-  u.onend = () => onUnduck();
-  u.onerror = () => onUnduck();
+
+  const finish = () => {
+    speechActive = false;
+    clearTimers();
+    postUnduckTimer = setTimeout(() => {
+      postUnduckTimer = null;
+      onUnduck();
+    }, POST_UNDUCK_MS);
+  };
+
+  u.onend = finish;
+  u.onerror = finish;
   speechSynthesis.speak(u);
 }

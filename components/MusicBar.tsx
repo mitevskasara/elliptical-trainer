@@ -1,22 +1,58 @@
+"use client";
+
+import { useRef, useCallback, useState } from "react";
+import MusicPicker from "./MusicPicker";
+
 interface MusicBarProps {
   musicName: string;
+  musicIcon: string;
   isPlaying: boolean;
   musicLoaded: boolean;
   volume: number;
   onLoadFile: (file: File) => void;
+  onSelectTrack: (name: string, src: string, icon?: string) => void;
   onTogglePlayback: () => void;
   onVolumeChange: (value: number) => void;
 }
 
 export default function MusicBar({
   musicName,
+  musicIcon,
   isPlaying,
   musicLoaded,
   volume,
   onLoadFile,
+  onSelectTrack,
   onTogglePlayback,
   onVolumeChange,
 }: MusicBarProps) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef(false);
+
+  const updateVolume = useCallback((clientX: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const rect = track.getBoundingClientRect();
+    const pct = Math.round(Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)));
+    onVolumeChange(pct);
+  }, [onVolumeChange]);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    draggingRef.current = true;
+    trackRef.current?.setPointerCapture(e.pointerId);
+    updateVolume(e.clientX);
+  }, [updateVolume]);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!draggingRef.current) return;
+    updateVolume(e.clientX);
+  }, [updateVolume]);
+
+  const handlePointerUp = useCallback(() => {
+    draggingRef.current = false;
+  }, []);
+
   return (
     <div className="music-bar">
       {!musicLoaded ? (
@@ -40,18 +76,26 @@ export default function MusicBar({
           )}
         </button>
       )}
-      <span className="music-name">{musicName}</span>
+      <span className="music-name" onClick={() => setPickerOpen(true)}>{musicIcon} {musicName}</span>
       {musicLoaded && (
-        <input
-          type="range"
-          className="music-vol"
-          min="0"
-          max="100"
-          value={volume}
-          onChange={(e) => onVolumeChange(Number(e.target.value))}
-          aria-label="Music volume"
-        />
+        <div
+          className="music-vol-track"
+          ref={trackRef}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        >
+          <div className="music-vol-fill" style={{ width: `${volume}%` }} />
+          <span className="music-vol-thumb" style={{ left: `${volume}%` }}>{volume === 0 ? "🔇" : "🔉"}</span>
+        </div>
       )}
+      <MusicPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelectTrack={onSelectTrack}
+        onUploadFile={onLoadFile}
+      />
     </div>
   );
 }
