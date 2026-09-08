@@ -7,7 +7,8 @@ import { beep, countdownBeep } from "@/lib/audio";
 import { findFemaleVoice, speak, unlockSpeech } from "@/lib/speech";
 import { elapsedSeconds, totalWorkoutSeconds } from "@/lib/helpers";
 
-const COUNTDOWN_SECONDS = 5;
+const COUNTDOWN_SECONDS = 3;
+const ANNOUNCE_SECONDS_BEFORE_END = 8;
 
 interface DuckHandlers {
   duck: () => void;
@@ -153,6 +154,19 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
 
     const currentSec = Math.ceil(remainingMsRef.current / 1000);
 
+    if (currentSec === ANNOUNCE_SECONDS_BEFORE_END && lastSecondRef.current !== ANNOUNCE_SECONDS_BEFORE_END) {
+      const nextIdx = currentIdxRef.current + 1;
+      if (nextIdx < workoutRef.current.length) {
+        const next = workoutRef.current[nextIdx];
+        duckHandlersRef.current.duck();
+        speak(
+          `Next: Level ${next.resistance}. ${next.description}.`,
+          duckHandlersRef.current.duck,
+          duckHandlersRef.current.unduck,
+        );
+      }
+    }
+
     if (currentSec !== lastSecondRef.current && currentSec <= COUNTDOWN_SECONDS && currentSec > 0) {
       countdownBeep(currentSec);
       speak(`${currentSec}`, duckHandlersRef.current.duck, duckHandlersRef.current.unduck);
@@ -190,13 +204,6 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
 
     duckHandlersRef.current.duck();
     beep(520, 0.1);
-    setTimeout(() => {
-      speak(
-        `Level ${item.resistance}. ${item.label}. ${item.description}.`,
-        duckHandlersRef.current.duck,
-        duckHandlersRef.current.unduck,
-      );
-    }, 150);
 
     clearIntervalRef();
     intervalIdRef.current = setInterval(tick, 50);
@@ -222,6 +229,18 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
     setRemainingSeconds(0);
     setTotalPercent(0);
     acquireWakeLock();
+
+    const first = workoutRef.current[0];
+    duckHandlersRef.current.duck();
+    beep(520, 0.1);
+    setTimeout(() => {
+      speak(
+        `Level ${first.resistance}. ${first.description}.`,
+        duckHandlersRef.current.duck,
+        duckHandlersRef.current.unduck,
+      );
+    }, 150);
+
     startIntervalRef.current();
   }, [acquireWakeLock, setRunningState]);
 
