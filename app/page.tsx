@@ -98,8 +98,11 @@ export default function Home() {
         isPlaying={music.isPlaying}
         musicLoaded={music.musicLoaded}
         volume={music.volume}
+        savedYouTubeUrls={music.savedYouTubeUrls}
         onLoadFile={music.loadFile}
         onSelectTrack={music.loadTrack}
+        onYouTubeUrl={music.loadYouTube}
+        onRemoveYouTubeUrl={music.removeYouTubeUrl}
         onTogglePlayback={music.togglePlayback}
         onVolumeChange={music.setVolume}
       />
@@ -151,6 +154,7 @@ export default function Home() {
         onClose={() => setSettingsOpen(false)}
         onThemeChange={handleThemeChange}
         onWorkoutChange={workout.controls.setWorkoutLevel}
+        onSaveCustomWorkout={workout.controls.saveCustomWorkout}
       />
 
       <CompletedOverlay

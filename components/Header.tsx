@@ -11,7 +11,7 @@ export default function Header({ workoutLevel, onOpenProgram, onOpenSettings }: 
     <header className="header">
       <div className="header-left">
         <span className="logo">🔥</span>
-        <h1 className="header-title" onClick={onOpenSettings}>{WORKOUT_LABELS[workoutLevel]}</h1>
+        <h1 className="header-title" onClick={onOpenSettings}>{WORKOUT_LABELS[workoutLevel].replace(/^[^\w\s]+ /, "")}</h1>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
         <button className="see-program-btn" onClick={onOpenProgram}>

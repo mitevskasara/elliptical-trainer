@@ -1,8 +1,8 @@
 import { WorkoutInterval } from "@/types/workout";
 
-export type WorkoutLevel = "standard" | "intense" | "hardcode";
+export type WorkoutLevel = "standard" | "intense" | "hardcode" | "custom";
 
-export const WORKOUTS: Record<WorkoutLevel, WorkoutInterval[]> = {
+export const WORKOUTS: Record<Exclude<WorkoutLevel, "custom">, WorkoutInterval[]> = {
   standard: [
     { label: "Warm-Up", duration: 180, resistance: 2, description: "Warm-Up, easy pace." },
     { label: "Work Interval", duration: 120, resistance: 4, description: "Fast & Powerful. Push and pull hard." },
@@ -48,9 +48,11 @@ export const WORKOUT_LABELS: Record<WorkoutLevel, string> = {
   standard: "Standard",
   intense: "Intense",
   hardcode: "Hardcode",
+  custom: "➕ Custom",
 };
 
 export const STORAGE_KEY = "elliptical_workout_v2";
+export const CUSTOM_WORKOUT_KEY = "elliptical_custom_workout";
 
 export const TIMER_RADIUS = 120;
 export const CIRCUMFERENCE = 2 * Math.PI * TIMER_RADIUS;

@@ -2,6 +2,7 @@
 
 import { useRef, useCallback, useState } from "react";
 import MusicPicker from "./MusicPicker";
+import type { SavedYouTubeUrl } from "@/hooks/useMusic";
 
 interface MusicBarProps {
   musicName: string;
@@ -9,8 +10,11 @@ interface MusicBarProps {
   isPlaying: boolean;
   musicLoaded: boolean;
   volume: number;
+  savedYouTubeUrls: SavedYouTubeUrl[];
   onLoadFile: (file: File) => void;
   onSelectTrack: (name: string, src: string, icon?: string) => void;
+  onYouTubeUrl: (url: string) => void;
+  onRemoveYouTubeUrl: (url: string) => void;
   onTogglePlayback: () => void;
   onVolumeChange: (value: number) => void;
 }
@@ -21,8 +25,11 @@ export default function MusicBar({
   isPlaying,
   musicLoaded,
   volume,
+  savedYouTubeUrls,
   onLoadFile,
   onSelectTrack,
+  onYouTubeUrl,
+  onRemoveYouTubeUrl,
   onTogglePlayback,
   onVolumeChange,
 }: MusicBarProps) {
@@ -95,6 +102,9 @@ export default function MusicBar({
         onClose={() => setPickerOpen(false)}
         onSelectTrack={onSelectTrack}
         onUploadFile={onLoadFile}
+        onYouTubeUrl={onYouTubeUrl}
+        onRemoveYouTubeUrl={onRemoveYouTubeUrl}
+        savedYouTubeUrls={savedYouTubeUrls}
       />
     </div>
   );

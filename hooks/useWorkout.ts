@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { WorkoutInterval } from "@/types/workout";
-import { WORKOUTS, STORAGE_KEY, WorkoutLevel } from "@/constants/workout";
+import { WORKOUTS, STORAGE_KEY, CUSTOM_WORKOUT_KEY, WorkoutLevel } from "@/constants/workout";
 import { beep, countdownBeep } from "@/lib/audio";
 import { findFemaleVoice, speak, unlockSpeech } from "@/lib/speech";
 import { elapsedSeconds, totalWorkoutSeconds } from "@/lib/helpers";
@@ -28,6 +28,7 @@ interface WorkoutControls {
   jumpTo: (idx: number) => void;
   saveWorkout: (workout: WorkoutInterval[]) => void;
   setWorkoutLevel: (level: WorkoutLevel) => void;
+  saveCustomWorkout: (intervals: WorkoutInterval[]) => void;
 }
 
 export interface UseWorkoutResult {
@@ -57,6 +58,18 @@ function loadWorkoutLevel(): WorkoutLevel {
 }
 
 function loadWorkoutByLevel(level: WorkoutLevel): WorkoutInterval[] {
+  if (level === "custom") {
+    try {
+      const stored = localStorage.getItem(CUSTOM_WORKOUT_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return structuredClone(WORKOUTS.standard);
+  }
   return structuredClone(WORKOUTS[level]);
 }
 
@@ -285,8 +298,26 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
     setWorkout(w);
   }, []);
 
+  const saveCustomWorkout = useCallback((intervals: WorkoutInterval[]) => {
+    try {
+      localStorage.setItem(CUSTOM_WORKOUT_KEY, JSON.stringify(intervals));
+    } catch {}
+    workoutRef.current = intervals;
+    setWorkout(intervals);
+    setWorkoutLevelState("custom");
+    setCurrentIdx(0);
+    setRemainingSeconds(0);
+    setIsRunning(false);
+    setIsPaused(false);
+    setIsComplete(false);
+    setTotalPercent(0);
+    try {
+      localStorage.setItem(`${STORAGE_KEY}_level`, "custom");
+    } catch {}
+  }, []);
+
   const setWorkoutLevel = useCallback((level: WorkoutLevel) => {
-    if (WORKOUTS[level]) {
+    if (level === "custom" || WORKOUTS[level]) {
       const newWorkout = loadWorkoutByLevel(level);
       setWorkoutLevelState(level);
       setWorkout(newWorkout);
@@ -323,13 +354,15 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
 
   useEffect(() => {
     const handleVisibility = () => {
-      if (document.visibilityState === "visible" && runningRef.current && !pausedRef.current) {
+      if (document.visibilityState === "hidden" && runningRef.current && !pausedRef.current) {
+        pause();
+      } else if (document.visibilityState === "visible" && runningRef.current && !pausedRef.current) {
         acquireWakeLock();
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [acquireWakeLock]);
+  }, [acquireWakeLock, pause]);
 
   useEffect(() => {
     speechSynthesis.onvoiceschanged = () => {
@@ -367,6 +400,7 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
       jumpTo,
       saveWorkout,
       setWorkoutLevel,
+      saveCustomWorkout,
     },
   };
 }
