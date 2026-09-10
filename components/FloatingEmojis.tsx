@@ -2,20 +2,60 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const EMOJIS = ["🥗","🍎","🥕","🍇","🍊","🍌","🍋","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑","🥦","🥬","🥒","🌶️","🫑","🌽","🫒","🥚","🍳","🍠","🍉","🥔","💪","🔥","⚡","🏆","👊","🦵","🏋️‍♀️","🥇"];
+const EMOJIS = [
+  "🥗",
+  "🍎",
+  "🥕",
+  "🍇",
+  "🍊",
+  "🍌",
+  "🍋",
+  "🍓",
+  "🫐",
+  "🍈",
+  "🍒",
+  "🍑",
+  "🥭",
+  "🍍",
+  "🥥",
+  "🥝",
+  "🍅",
+  "🍆",
+  "🥑",
+  "🥦",
+  "🥬",
+  "🥒",
+  "🌶️",
+  "🫑",
+  "🌽",
+  "🫒",
+  "🥚",
+  "🍳",
+  "🍠",
+  "🍉",
+  "🥔",
+  "💪",
+  "🔥",
+  "⚡",
+  "🏆",
+  "👊",
+  "🦵",
+  "🏋️‍♀️",
+  "🥇",
+];
 
-const FIRST_BATCH_DELAY_MS = 60000;    // 1 minute before first batch
-const BATCH_INTERVAL_MIN_MS = 60000;   // 2 minutes between batches
-const BATCH_INTERVAL_MAX_MS = 240000;   // 4 minutes between batches
-const BATCH_SIZE_MIN = 2;               // min emojis per batch
-const BATCH_SIZE_MAX = 4;               // max emojis per batch
-const EMOJI_MIN_DURATION_S = 6;         // 6 seconds
-const EMOJI_MAX_DURATION_S = 12;        // 12 seconds
+const FIRST_BATCH_DELAY_MS = 60000; // 1 minute before first batch
+const BATCH_INTERVAL_MIN_MS = 60000; // 2 minutes between batches
+const BATCH_INTERVAL_MAX_MS = 240000; // 4 minutes between batches
+const BATCH_SIZE_MIN = 2; // min emojis per batch
+const BATCH_SIZE_MAX = 4; // max emojis per batch
+const EMOJI_MIN_DURATION_S = 6; // 6 seconds
+const EMOJI_MAX_DURATION_S = 12; // 12 seconds
 const EMOJI_MIN_SIZE_REM = 2.0;
 const EMOJI_MAX_SIZE_REM = 3.5;
 const EMOJI_MIN_TOP_PERCENT = 10;
 const EMOJI_MAX_TOP_SPREAD_PERCENT = 80;
-const EMOJI_CLEANUP_DELAY_MS = 13000;  // 13 seconds
+const EMOJI_CLEANUP_DELAY_MS = 13000; // 13 seconds
 
 interface FloatingEmoji {
   id: number;

@@ -6,10 +6,7 @@ import { PRESET_TRACKS } from "@/constants/music";
 declare global {
   interface Window {
     YT: {
-      Player: new (
-        elementId: string,
-        config: Record<string, unknown>,
-      ) => YTPlayer;
+      Player: new (elementId: string, config: Record<string, unknown>) => YTPlayer;
     };
     onYouTubeIframeAPIReady: () => void;
   }
@@ -89,7 +86,9 @@ export function useMusic(): UseMusicResult {
         URL.revokeObjectURL(objectUrlRef.current);
       }
       if (ytPlayerRef.current) {
-        try { ytPlayerRef.current.destroy(); } catch {}
+        try {
+          ytPlayerRef.current.destroy();
+        } catch {}
       }
     };
   }, []);
@@ -108,7 +107,9 @@ export function useMusic(): UseMusicResult {
   const persistYouTubeUrls = useCallback((urls: SavedYouTubeUrl[]) => {
     savedYtUrlsRef.current = urls;
     setSavedYouTubeUrls(urls);
-    try { localStorage.setItem("trainer-yt-urls", JSON.stringify(urls)); } catch {}
+    try {
+      localStorage.setItem("trainer-yt-urls", JSON.stringify(urls));
+    } catch {}
   }, []);
 
   useEffect(() => {
@@ -133,7 +134,8 @@ export function useMusic(): UseMusicResult {
         loadYouTubeApi().then(() => {
           const container = document.createElement("div");
           container.id = "yt-music-container";
-          container.style.cssText = "position:absolute;width:0;height:0;opacity:0;pointer-events:none;overflow:hidden;";
+          container.style.cssText =
+            "position:absolute;width:0;height:0;opacity:0;pointer-events:none;overflow:hidden;";
           document.body.appendChild(container);
           ytContainerRef.current = container;
           const playerDiv = document.createElement("div");
@@ -142,7 +144,15 @@ export function useMusic(): UseMusicResult {
           const YT = window.YT;
           new YT.Player("yt-music-player", {
             videoId,
-            playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3, modestbranding: 1, rel: 0 },
+            playerVars: {
+              autoplay: 0,
+              controls: 0,
+              disablekb: 1,
+              fs: 0,
+              iv_load_policy: 3,
+              modestbranding: 1,
+              rel: 0,
+            },
             events: {
               onReady: (e: { target: YTPlayer }) => {
                 ytPlayerRef.current = e.target;
@@ -180,10 +190,16 @@ export function useMusic(): UseMusicResult {
 
   const loadYouTubeApi = useCallback((): Promise<void> => {
     return new Promise((resolve) => {
-      if (ytReadyRef.current) { resolve(); return; }
+      if (ytReadyRef.current) {
+        resolve();
+        return;
+      }
       if (ytLoadingRef.current) {
         const check = setInterval(() => {
-          if (ytReadyRef.current) { clearInterval(check); resolve(); }
+          if (ytReadyRef.current) {
+            clearInterval(check);
+            resolve();
+          }
         }, 50);
         return;
       }
@@ -198,38 +214,37 @@ export function useMusic(): UseMusicResult {
     });
   }, []);
 
-  const loadFile = useCallback(
-    (file: File) => {
-      if (ytPlayerRef.current) {
-        try { ytPlayerRef.current.destroy(); } catch {}
-        ytPlayerRef.current = null;
-      }
-      usingYouTubeRef.current = false;
+  const loadFile = useCallback((file: File) => {
+    if (ytPlayerRef.current) {
+      try {
+        ytPlayerRef.current.destroy();
+      } catch {}
+      ytPlayerRef.current = null;
+    }
+    usingYouTubeRef.current = false;
 
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-      }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+    }
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+    }
 
-      const audio = new Audio();
-      audio.loop = true;
-      const url = URL.createObjectURL(file);
-      audio.src = url;
-      audio.volume = userVolumeRef.current;
-      objectUrlRef.current = url;
-      audioRef.current = audio;
+    const audio = new Audio();
+    audio.loop = true;
+    const url = URL.createObjectURL(file);
+    audio.src = url;
+    audio.volume = userVolumeRef.current;
+    objectUrlRef.current = url;
+    audioRef.current = audio;
 
-      setMusicName(file.name.replace(/\.[^.]+$/, ""));
-      setMusicIcon("🎵");
-      setMusicLoaded(true);
-      audio.play();
-      setIsPlaying(true);
-    },
-    [],
-  );
+    setMusicName(file.name.replace(/\.[^.]+$/, ""));
+    setMusicIcon("🎵");
+    setMusicLoaded(true);
+    audio.play();
+    setIsPlaying(true);
+  }, []);
 
   const loadYouTube = useCallback(
     (url: string) => {
@@ -254,13 +269,16 @@ export function useMusic(): UseMusicResult {
         if (!container) {
           container = document.createElement("div");
           container.id = "yt-music-container";
-          container.style.cssText = "position:absolute;width:0;height:0;opacity:0;pointer-events:none;overflow:hidden;";
+          container.style.cssText =
+            "position:absolute;width:0;height:0;opacity:0;pointer-events:none;overflow:hidden;";
           document.body.appendChild(container);
           ytContainerRef.current = container;
         }
 
         if (ytPlayerRef.current) {
-          try { ytPlayerRef.current.destroy(); } catch {}
+          try {
+            ytPlayerRef.current.destroy();
+          } catch {}
           ytPlayerRef.current = null;
         }
 
@@ -289,10 +307,7 @@ export function useMusic(): UseMusicResult {
               setMusicName(title ? `YouTube | ${title}` : "YouTube");
               if (title) {
                 const prev = savedYtUrlsRef.current;
-                persistYouTubeUrls([
-                  ...prev.filter((s) => s.url !== url),
-                  { url, title },
-                ]);
+                persistYouTubeUrls([...prev.filter((s) => s.url !== url), { url, title }]);
               }
             },
             onStateChange: (e: { data: number; target: YTPlayer }) => {
@@ -311,7 +326,9 @@ export function useMusic(): UseMusicResult {
 
   const togglePlayback = useCallback(() => {
     if (usingYouTubeRef.current && ytPlayerRef.current) {
-      const state = (ytPlayerRef.current as unknown as { getPlayerState?: () => number }).getPlayerState?.();
+      const state = (
+        ytPlayerRef.current as unknown as { getPlayerState?: () => number }
+      ).getPlayerState?.();
       if (state === 1) {
         ytPlayerRef.current.pauseVideo();
         setIsPlaying(false);
@@ -332,11 +349,14 @@ export function useMusic(): UseMusicResult {
     }
   }, []);
 
-  const setVolume = useCallback((value: number) => {
-    userVolumeRef.current = value / 100;
-    setVolumeState(value);
-    applyVolume();
-  }, [applyVolume]);
+  const setVolume = useCallback(
+    (value: number) => {
+      userVolumeRef.current = value / 100;
+      setVolumeState(value);
+      applyVolume();
+    },
+    [applyVolume],
+  );
 
   const fadeVolume = useCallback(
     (from: number, to: number, durationMs: number, done?: () => void) => {
@@ -365,7 +385,10 @@ export function useMusic(): UseMusicResult {
       }
 
       const audio = audioRef.current;
-      if (!audio) { done?.(); return; }
+      if (!audio) {
+        done?.();
+        return;
+      }
       const steps = 20;
       const stepMs = durationMs / steps;
       let step = 0;
@@ -397,7 +420,7 @@ export function useMusic(): UseMusicResult {
     }
     isDuckingRef.current = true;
     const currentVol = usingYouTubeRef.current
-      ? (ytPlayerRef.current!.getVolume() / 100)
+      ? ytPlayerRef.current!.getVolume() / 100
       : audioRef.current!.volume;
     const targetVol = Math.min(currentVol, 0.15);
     fadeVolume(currentVol, targetVol, 800);
@@ -411,40 +434,39 @@ export function useMusic(): UseMusicResult {
       fadeIntervalRef.current = null;
     }
     const currentVol = usingYouTubeRef.current
-      ? (ytPlayerRef.current!.getVolume() / 100)
+      ? ytPlayerRef.current!.getVolume() / 100
       : audioRef.current!.volume;
     fadeVolume(currentVol, userVolumeRef.current, 1200);
   }, [fadeVolume]);
 
-  const loadTrack = useCallback(
-    (name: string, src: string, icon?: string) => {
-      if (ytPlayerRef.current) {
-        try { ytPlayerRef.current.destroy(); } catch {}
-        ytPlayerRef.current = null;
-      }
-      usingYouTubeRef.current = false;
+  const loadTrack = useCallback((name: string, src: string, icon?: string) => {
+    if (ytPlayerRef.current) {
+      try {
+        ytPlayerRef.current.destroy();
+      } catch {}
+      ytPlayerRef.current = null;
+    }
+    usingYouTubeRef.current = false;
 
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
-      if (objectUrlRef.current) {
-        URL.revokeObjectURL(objectUrlRef.current);
-        objectUrlRef.current = null;
-      }
-      const audio = new Audio();
-      audio.loop = true;
-      audio.volume = userVolumeRef.current;
-      audio.src = src;
-      audioRef.current = audio;
-      setMusicName(name);
-      setMusicIcon(icon || "🎵");
-      setMusicLoaded(true);
-      audio.play();
-      setIsPlaying(true);
-    },
-    [],
-  );
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+    }
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+    const audio = new Audio();
+    audio.loop = true;
+    audio.volume = userVolumeRef.current;
+    audio.src = src;
+    audioRef.current = audio;
+    setMusicName(name);
+    setMusicIcon(icon || "🎵");
+    setMusicLoaded(true);
+    audio.play();
+    setIsPlaying(true);
+  }, []);
 
   const removeYouTubeUrl = useCallback(
     (url: string) => {

@@ -33,7 +33,14 @@ const themes = [
   },
 ];
 
-const LABEL_OPTIONS = ["Warm-Up", "Work Interval", "Recovery", "Active Recovery", "Peak Interval", "Cool-Down"];
+const LABEL_OPTIONS = [
+  "Warm-Up",
+  "Work Interval",
+  "Recovery",
+  "Active Recovery",
+  "Peak Interval",
+  "Cool-Down",
+];
 
 function createEmptyInterval(): WorkoutInterval {
   return { label: "Work Interval", duration: 120, resistance: 5, description: "" };
@@ -49,7 +56,9 @@ export default function SettingsModal({
   onSaveCustomWorkout,
 }: SettingsModalProps) {
   const [showCustomForm, setShowCustomForm] = useState(false);
-  const [customIntervals, setCustomIntervals] = useState<WorkoutInterval[]>([createEmptyInterval()]);
+  const [customIntervals, setCustomIntervals] = useState<WorkoutInterval[]>([
+    createEmptyInterval(),
+  ]);
 
   const handleAddInterval = () => {
     setCustomIntervals([...customIntervals, createEmptyInterval()]);
@@ -59,7 +68,11 @@ export default function SettingsModal({
     setCustomIntervals(customIntervals.filter((_, i) => i !== idx));
   };
 
-  const handleUpdateInterval = (idx: number, field: keyof WorkoutInterval, value: string | number) => {
+  const handleUpdateInterval = (
+    idx: number,
+    field: keyof WorkoutInterval,
+    value: string | number,
+  ) => {
     const updated = [...customIntervals];
     updated[idx] = { ...updated[idx], [field]: value };
     setCustomIntervals(updated);
@@ -108,7 +121,9 @@ export default function SettingsModal({
                   }}
                 >
                   {LABEL_OPTIONS.map((l) => (
-                    <option key={l} value={l}>{l}</option>
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
                   ))}
                 </select>
                 <button
@@ -128,11 +143,19 @@ export default function SettingsModal({
               </div>
               <div style={{ display: "flex", gap: "6px" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: ".65rem", color: "var(--muted)", marginBottom: "2px" }}>Duration (sec)</div>
+                  <div style={{ fontSize: ".65rem", color: "var(--muted)", marginBottom: "2px" }}>
+                    Duration (sec)
+                  </div>
                   <input
                     type="number"
                     value={interval.duration}
-                    onChange={(e) => handleUpdateInterval(idx, "duration", Math.max(1, parseInt(e.target.value) || 1))}
+                    onChange={(e) =>
+                      handleUpdateInterval(
+                        idx,
+                        "duration",
+                        Math.max(1, parseInt(e.target.value) || 1),
+                      )
+                    }
                     style={{
                       width: "100%",
                       padding: "6px 8px",
@@ -146,13 +169,21 @@ export default function SettingsModal({
                   />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: ".65rem", color: "var(--muted)", marginBottom: "2px" }}>Resistance (1-10)</div>
+                  <div style={{ fontSize: ".65rem", color: "var(--muted)", marginBottom: "2px" }}>
+                    Resistance (1-10)
+                  </div>
                   <input
                     type="number"
                     min={1}
                     max={10}
                     value={interval.resistance}
-                    onChange={(e) => handleUpdateInterval(idx, "resistance", Math.max(1, Math.min(10, parseInt(e.target.value) || 1)))}
+                    onChange={(e) =>
+                      handleUpdateInterval(
+                        idx,
+                        "resistance",
+                        Math.max(1, Math.min(10, parseInt(e.target.value) || 1)),
+                      )
+                    }
                     style={{
                       width: "100%",
                       padding: "6px 8px",

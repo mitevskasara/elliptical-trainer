@@ -54,14 +54,13 @@ export function unlockSpeech(): void {
 }
 
 function clearTimers(): void {
-  if (postUnduckTimer) { clearTimeout(postUnduckTimer); postUnduckTimer = null; }
+  if (postUnduckTimer) {
+    clearTimeout(postUnduckTimer);
+    postUnduckTimer = null;
+  }
 }
 
-export function speak(
-  text: string,
-  onDuck: () => void,
-  onUnduck: () => void,
-): void {
+export function speak(text: string, onDuck: () => void, onUnduck: () => void): void {
   if (!speechSynthesis) return;
 
   if (speechActive) {

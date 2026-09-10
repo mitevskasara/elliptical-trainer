@@ -34,7 +34,9 @@ export default function ProgramPanel({
       <div className="program-panel">
         <div className="program-panel-header">
           <h2>Workout Program</h2>
-          <button className="program-panel-close" onClick={onClose}>✕</button>
+          <button className="program-panel-close" onClick={onClose}>
+            ✕
+          </button>
         </div>
         <div className="program-list">
           {workout.map((item, i) => {

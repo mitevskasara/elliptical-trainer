@@ -46,7 +46,10 @@ export default function EditorModal({ open, workout, onClose, onSave }: EditorMo
       list = workout;
     }
     const newText = JSON.stringify(
-      [...list, { label: "New Interval", duration: 60, resistance: 5, description: "Description here" }],
+      [
+        ...list,
+        { label: "New Interval", duration: 60, resistance: 5, description: "Description here" },
+      ],
       null,
       2,
     );
@@ -75,7 +78,9 @@ export default function EditorModal({ open, workout, onClose, onSave }: EditorMo
       <div className="modal">
         <div className="modal-header">
           <h2>Edit Workout</h2>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={onClose}>
+            ✕
+          </button>
         </div>
         <div className="modal-body">
           <div className="editor-label">Workout JSON</div>
@@ -88,11 +93,17 @@ export default function EditorModal({ open, workout, onClose, onSave }: EditorMo
           <div className="json-error" style={{ color: isValid ? "var(--green)" : "var(--red)" }}>
             {message}
           </div>
-          <button className="btn-add" onClick={handleAddInterval}>+ Add Interval</button>
+          <button className="btn-add" onClick={handleAddInterval}>
+            + Add Interval
+          </button>
         </div>
         <div className="modal-footer">
-          <button className="btn-cancel" onClick={onClose}>Cancel</button>
-          <button className="btn-save" onClick={handleSave}>Save &amp; Close</button>
+          <button className="btn-cancel" onClick={onClose}>
+            Cancel
+          </button>
+          <button className="btn-save" onClick={handleSave}>
+            Save &amp; Close
+          </button>
         </div>
       </div>
     </div>

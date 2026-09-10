@@ -54,7 +54,13 @@ export default function Home() {
   }, [workout.isPaused]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!workout.isPaused && workout.isRunning && music.musicLoaded && !music.isPlaying && musicWasPlayingRef.current) {
+    if (
+      !workout.isPaused &&
+      workout.isRunning &&
+      music.musicLoaded &&
+      !music.isPlaying &&
+      musicWasPlayingRef.current
+    ) {
       musicWasPlayingRef.current = false;
       music.togglePlayback();
     }
@@ -72,7 +78,14 @@ export default function Home() {
     if (music.musicLoaded && !music.isPlaying) {
       music.togglePlayback();
     }
-  }, [music.isPlaying, music.musicLoaded, music.togglePlayback, showToast, workout.workout.length, workout.controls]);
+  }, [
+    music.isPlaying,
+    music.musicLoaded,
+    music.togglePlayback,
+    showToast,
+    workout.workout.length,
+    workout.controls,
+  ]);
 
   const handleReset = useCallback(() => {
     workout.controls.reset();
@@ -117,10 +130,7 @@ export default function Home() {
           isComplete={workout.isComplete}
         />
 
-        <TimerRing
-          remainingSeconds={workout.remainingSeconds}
-          totalSeconds={currentTotalSeconds}
-        />
+        <TimerRing remainingSeconds={workout.remainingSeconds} totalSeconds={currentTotalSeconds} />
 
         <Progress
           totalPercent={workout.totalPercent}

@@ -167,7 +167,10 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
 
     const currentSec = Math.ceil(remainingMsRef.current / 1000);
 
-    if (currentSec === ANNOUNCE_SECONDS_BEFORE_END && lastSecondRef.current !== ANNOUNCE_SECONDS_BEFORE_END) {
+    if (
+      currentSec === ANNOUNCE_SECONDS_BEFORE_END &&
+      lastSecondRef.current !== ANNOUNCE_SECONDS_BEFORE_END
+    ) {
       const nextIdx = currentIdxRef.current + 1;
       if (nextIdx < workoutRef.current.length) {
         const next = workoutRef.current[nextIdx];
@@ -198,7 +201,11 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
     setIsComplete(true);
     setRemainingSeconds(0);
     setTotalPercent(100);
-    speak("Workout complete. Great job!", duckHandlersRef.current.duck, duckHandlersRef.current.unduck);
+    speak(
+      "Workout complete. Great job!",
+      duckHandlersRef.current.duck,
+      duckHandlersRef.current.unduck,
+    );
     releaseWakeLock();
     clearIntervalRef();
   }, [clearIntervalRef, releaseWakeLock, setRunningState]);
@@ -356,7 +363,11 @@ export function useWorkout(duckHandlers?: DuckHandlers): UseWorkoutResult {
     const handleVisibility = () => {
       if (document.visibilityState === "hidden" && runningRef.current && !pausedRef.current) {
         pause();
-      } else if (document.visibilityState === "visible" && runningRef.current && !pausedRef.current) {
+      } else if (
+        document.visibilityState === "visible" &&
+        runningRef.current &&
+        !pausedRef.current
+      ) {
         acquireWakeLock();
       }
     };

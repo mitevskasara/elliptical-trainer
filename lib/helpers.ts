@@ -31,9 +31,7 @@ export function elapsedSeconds(
   return elapsed;
 }
 
-export function formatCompletionStats(
-  workout: WorkoutInterval[],
-): string {
+export function formatCompletionStats(workout: WorkoutInterval[]): string {
   const total = totalWorkoutSeconds(workout);
   return `${workout.length} intervals · ${Math.floor(total / 60)}m ${total % 60}s total`;
 }
